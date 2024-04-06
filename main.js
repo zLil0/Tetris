@@ -106,38 +106,59 @@ class TetrisBlock {
 
 const staticBlocks = []
 
-const player = []
+let player = []
+
+
+let nextPiece = Math.floor(Math.random() * 7)
+
+let currentPiece
+
+const randomPiece = () => {
+    currentPiece = nextPiece
+    nextPiece = Math.floor(Math.random() * 7)
+    return currentPiece
+}
 
 const mapColliding = ({ playerCell }) => {
     return (playerCell.position.x + playerCell.velocity.x < 20 || playerCell.position.x + playerCell.velocity.x + 30 > 320)
 
 }
 
-shapes[1].map((lin, i) => {
-    lin.map((col, j) => {
-        if (col === '-') {
-            player.push(new TetrisBlock({
-                color: 'yellow',
-                position: {
-                    x: 20 + j * 30,
-                    y: 20 + i * 30
-                },
-                velocity: {
-                    x: 0,
-                    y: 2
-                }
-            })
-            )
-        }
+
+const newPiece = () => {
+    shapes[randomPiece()].map((lin, i) => {
+        lin.map((col, j) => {
+            if (col === '-') {
+                player.push(new TetrisBlock({
+                    color: 'yellow',
+                    position: {
+                        x: 110 + j * 30,
+                        y: -40 + i * 30
+                    },
+                    velocity: {
+                        x: 0,
+                        y: 2
+                    }
+                })
+                )
+            }
+        })
     })
-})
+}
+newPiece()
+
 
 const animate = () => {
     window.requestAnimationFrame(animate)
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     drawBackground()
     player.map((playerCell) => {
-        playerCell.draw()
+        if(playerCell.position.y>=20){
+            playerCell.draw()
+        }
+    })
+    staticBlocks.map((block)=> {
+        block.draw()
     })
 
 
@@ -162,8 +183,19 @@ const animate = () => {
             playerCell.fall()
         })
     }
-    
+    else if((player[0].position.y + 30 === 620) ||
+    (player[1].position.y + 30 === 620)||
+    (player[2].position.y + 30 === 620) ||
+    (player[3].position.y + 30 === 620)){
+        player.map((playerCell) => {
+            staticBlocks.push(playerCell)
+        })
+        player = []
+        newPiece()
 
+
+    }
+    
 
 }
 animate()
