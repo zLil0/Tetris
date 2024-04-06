@@ -73,7 +73,8 @@ class TetrisBlock {
         this.color = color
         this.position = position
         this.velocity = velocity
-        this.buffer = 0
+        this.mooveBuffer = 0
+        this.fallBuffer = 0
     }
     draw() {
         ctx.beginPath()
@@ -85,15 +86,20 @@ class TetrisBlock {
         ctx.closePath()
     }
     moove() {
-        this.buffer += this.velocity.x
+        this.mooveBuffer += this.velocity.x
 
-        if (this.buffer === 30 || this.buffer === -30) {
-            this.position.x += this.buffer
-            this.buffer = 0
+        if (this.mooveBuffer === 30 || this.mooveBuffer === -30) {
+            this.position.x += this.mooveBuffer
+            this.mooveBuffer = 0
         }
     }
     fall() {
-        this.position.y += this.velocity.y
+        this.fallBuffer += this.velocity.y
+
+        if (this.fallBuffer === 30 || this.fallBuffer === -30) {
+            this.position.y += this.fallBuffer
+            this.fallBuffer = 0
+        }
     }
 
 }
@@ -118,7 +124,7 @@ shapes[1].map((lin, i) => {
                 },
                 velocity: {
                     x: 0,
-                    y: 0
+                    y: 2
                 }
             })
             )
@@ -147,6 +153,16 @@ const animate = () => {
             playerCell.moove()
         })
     }
+
+    if ((player[0].position.y + 30 < 620) &&
+    (player[1].position.y + 30 < 620)&&
+    (player[2].position.y + 30 < 620) &&
+    (player[3].position.y + 30 < 620)) {
+        player.map((playerCell) => {
+            playerCell.fall()
+        })
+    }
+    
 
 
 }
