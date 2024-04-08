@@ -116,7 +116,6 @@ let currentPiece
 const randomPiece = () => {
     currentPiece = nextPiece
     nextPiece = Math.floor(Math.random() * 7)
-    return currentPiece
 }
 
 const collidingWithMap = () => {
@@ -132,9 +131,9 @@ const collidingWithMap = () => {
 
 
 const newPiece = () => {
-    let n = randomPiece()
+    randomPiece()
     let color = ''
-    switch (n) {
+    switch (currentPiece) {
         case 0: color = 'yellow'
             break
         case 1: color = 'orange'
@@ -150,7 +149,7 @@ const newPiece = () => {
         case 6: color = 'cyan'
             break
     }
-    shapes[n].map((lin, i) => {
+    shapes[currentPiece].map((lin, i) => {
         lin.map((col, j) => {
             if (col === '-') {
                 player.push(new TetrisBlock({
@@ -170,13 +169,24 @@ const newPiece = () => {
     })
 }
 newPiece()
+drawBackground()
+
+
+let rotatePosition = 0
+
+
+player.map((playerCell) => {
+    playerCell.draw()
+})
+
+
 
 
 const animate = () => {
     window.requestAnimationFrame(animate)
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     drawBackground()
-    
+
     staticBlocks.map((block) => {
         block.draw()
     })
@@ -186,9 +196,9 @@ const animate = () => {
             playerCell.velocity.x = 0
         })
     }
-    
+
     staticBlocks.map((block) => {
-        if (((player[0].position.x + player[0].velocity.x <= block.position.x + 30 && player[0].position.x + player[0].velocity.x + 30 >= block.position.x && player[0].position.y === block.position.y)  ||
+        if (((player[0].position.x + player[0].velocity.x <= block.position.x + 30 && player[0].position.x + player[0].velocity.x + 30 >= block.position.x && player[0].position.y === block.position.y) ||
             (player[1].position.x + player[1].velocity.x <= block.position.x + 30 && player[1].position.x + player[1].velocity.x + 30 >= block.position.x && player[1].position.y === block.position.y) ||
             (player[2].position.x + player[2].velocity.x <= block.position.x + 30 && player[2].position.x + player[2].velocity.x + 30 >= block.position.x && player[2].position.y === block.position.y) ||
             (player[3].position.x + player[3].velocity.x <= block.position.x + 30 && player[3].position.x + player[3].velocity.x + 30 >= block.position.x && player[3].position.y === block.position.y))) {
@@ -221,8 +231,8 @@ const animate = () => {
             staticBlocks.push(playerCell)
         })
         player = []
+        rotatePosition = 0
         newPiece()
-
     }
 
     staticBlocks.map((block) => {
@@ -234,6 +244,7 @@ const animate = () => {
                 staticBlocks.push(playerCell)
             })
             player = []
+            rotatePosition = 0
             newPiece()
         }
     })
@@ -248,6 +259,91 @@ let keyPressed = {
     r: false,
     l: false
 }
+
+const rotate = () => {
+    let fstX = 0, fstY = 0, sndX = 0, sndY = 0, thdX = 0, thdY = 0, fthX = 0, fthY = 0
+    if (rotatePosition === 0) {
+        rotatePosition++
+        switch (currentPiece) {
+            case 1: fstY = 30; sndY = -60; sndX = 30; thdY = -30; fthX = -30;
+                break
+            case 2: fstY = -30; fstX = 60; sndY = -60; sndX = 30; thdY = -30; fthX = -30;
+                break
+            case 3: fstX = 30; sndY = -60; sndX = 30; thdY = -30; fthX = -30;
+                break
+            case 4: fstY = -30; fstX = 30; thdY = -30; thdX = -30; fthX = -60;
+                break
+            case 5: fstX = 30; sndY = 30; thdY = -60; thdX = 30; fthY = -30;
+                break
+            case 6: fstY = -90; fstX = 30; sndY = -60; thdY = -30; thdX = -30; fthX = -60;
+                break
+        }
+    }
+    else if (rotatePosition === 1) {
+        rotatePosition++
+        switch (currentPiece) {
+            case 1: fstX = -60; sndY = 30; sndX = 30; fthY = -30; fthX = -30;
+                break
+            case 2: fstY = 60; sndY = 30; sndX = 30; fthY = -30; fthX = -30;
+                break
+            case 3: fstY = 30; fstX = -30; sndY = 30; sndX = 30; fthY = -30; fthX = -30;
+                break
+            case 4: fstY = 30; fstX = -30; thdY = 30; thdX = 30; fthX = 60;
+                rotatePosition = 0
+                break
+            case 5: fstX = -30; sndY = -30; thdY = 60; thdX = -30; fthY = 30;
+                rotatePosition = 0
+                break
+            case 6: fstY = 90; fstX = -30; sndY = 60; thdY = 30; thdX = 30; fthX = 60;
+                rotatePosition = 0
+                break
+        }
+    }
+    else if (rotatePosition === 2) {
+        rotatePosition++
+        switch (currentPiece) {
+            case 1: fstY = -60; sndY = 30; sndX = -30; fthY = -30; fthX = 30;
+                break
+            case 2: fstX = -60; sndY = 30; sndX = -30; fthY = -30; fthX = 30;
+                break
+            case 3: fstY = -30; fstX = -30; sndY = 30; sndX = -30; fthY = -30; fthX = 30;
+                break
+        }
+    }
+    else if (rotatePosition === 3) {
+        switch (currentPiece) {
+            case 1: fstY = 30; fstX = 60; sndX = -30; thdY = 30; fthY = 60; fthX = 30;
+                break
+            case 2: fstY = -30; sndX = -30; thdY = 30; fthY = 60; fthX = 30;
+                break
+            case 3: fstX = 30; sndX = -30; thdY = 30; fthY = 60; fthX = 30;
+                break
+        }
+        rotatePosition = 0
+    }
+    player.map((playerCell, i) => {
+        switch (i) {
+            case 0:
+                playerCell.position.y += fstY
+                playerCell.position.x += fstX
+                break
+            case 1:
+                playerCell.position.y += sndY
+                playerCell.position.x += sndX
+                break
+            case 2:
+                playerCell.position.y += thdY
+                playerCell.position.x += thdX
+                break
+            case 3:
+                playerCell.position.y += fthY
+                playerCell.position.x += fthX
+                break
+        }
+    })
+
+}
+
 document.addEventListener('keydown', ({ key }) => {
     if (key === 'ArrowRight') {
         keyPressed.r = true
@@ -260,6 +356,9 @@ document.addEventListener('keydown', ({ key }) => {
         player.map((playerCell) => {
             playerCell.velocity.x = -10
         })
+    }
+    if (key === 'z') {
+        rotate()
     }
 })
 document.addEventListener('keyup', ({ key }) => {
