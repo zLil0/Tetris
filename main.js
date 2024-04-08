@@ -119,18 +119,42 @@ const randomPiece = () => {
     return currentPiece
 }
 
-const mapColliding = ({ playerCell }) => {
-    return (playerCell.position.x + playerCell.velocity.x < 20 || playerCell.position.x + playerCell.velocity.x + 30 > 320)
-
+const collidingWithMap = () => {
+    return (((player[0].position.x + player[0].velocity.x + 30 <= 320) &&
+        (player[1].position.x + player[1].velocity.x + 30 <= 320) &&
+        (player[2].position.x + player[2].velocity.x + 30 <= 320) &&
+        (player[3].position.x + player[3].velocity.x + 30 <= 320)) &&
+        ((player[0].position.x + player[0].velocity.x >= 20) &&
+            (player[1].position.x + player[1].velocity.x >= 20) &&
+            (player[2].position.x + player[2].velocity.x >= 20) &&
+            (player[3].position.x + player[3].velocity.x >= 20)))
 }
 
 
 const newPiece = () => {
-    shapes[randomPiece()].map((lin, i) => {
+    let n = randomPiece()
+    let color = ''
+    switch (n) {
+        case 0: color = 'yellow'
+            break
+        case 1: color = 'orange'
+            break
+        case 2: color = 'blue'
+            break
+        case 3: color = 'purple'
+            break
+        case 4: color = 'red'
+            break
+        case 5: color = 'green'
+            break
+        case 6: color = 'cyan'
+            break
+    }
+    shapes[n].map((lin, i) => {
         lin.map((col, j) => {
             if (col === '-') {
                 player.push(new TetrisBlock({
-                    color: 'yellow',
+                    color: color,
                     position: {
                         x: 110 + j * 30,
                         y: -40 + i * 30
@@ -152,50 +176,70 @@ const animate = () => {
     window.requestAnimationFrame(animate)
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     drawBackground()
-    player.map((playerCell) => {
-        if(playerCell.position.y>=20){
-            playerCell.draw()
-        }
-    })
-    staticBlocks.map((block)=> {
+    
+    staticBlocks.map((block) => {
         block.draw()
     })
 
-
-    if (((player[0].position.x + player[0].velocity.x + 30 <= 320) &&
-        (player[1].position.x + player[1].velocity.x + 30 <= 320) &&
-        (player[2].position.x + player[2].velocity.x + 30 <= 320) &&
-        (player[3].position.x + player[3].velocity.x + 30 <= 320)) &&
-        ((player[0].position.x + player[0].velocity.x >= 20) &&
-            (player[1].position.x + player[1].velocity.x >= 20) &&
-            (player[2].position.x + player[2].velocity.x >= 20) &&
-            (player[3].position.x + player[3].velocity.x >= 20))) {
+    if (!collidingWithMap()) {
         player.map((playerCell) => {
-            playerCell.moove()
+            playerCell.velocity.x = 0
         })
     }
+    
+    staticBlocks.map((block) => {
+        if (((player[0].position.x + player[0].velocity.x <= block.position.x + 30 && player[0].position.x + player[0].velocity.x + 30 >= block.position.x && player[0].position.y === block.position.y)  ||
+            (player[1].position.x + player[1].velocity.x <= block.position.x + 30 && player[1].position.x + player[1].velocity.x + 30 >= block.position.x && player[1].position.y === block.position.y) ||
+            (player[2].position.x + player[2].velocity.x <= block.position.x + 30 && player[2].position.x + player[2].velocity.x + 30 >= block.position.x && player[2].position.y === block.position.y) ||
+            (player[3].position.x + player[3].velocity.x <= block.position.x + 30 && player[3].position.x + player[3].velocity.x + 30 >= block.position.x && player[3].position.y === block.position.y))) {
+            player.map((playerCell) => {
+                playerCell.mooveBuffer = 0
+            })
+        }
+    })
+    player.map((playerCell) => {
+        if (playerCell.position.y >= 20) {
+            playerCell.draw()
+        }
+        playerCell.moove()
+    })
+
 
     if ((player[0].position.y + 30 < 620) &&
-    (player[1].position.y + 30 < 620)&&
-    (player[2].position.y + 30 < 620) &&
-    (player[3].position.y + 30 < 620)) {
+        (player[1].position.y + 30 < 620) &&
+        (player[2].position.y + 30 < 620) &&
+        (player[3].position.y + 30 < 620)) {
         player.map((playerCell) => {
             playerCell.fall()
         })
     }
-    else if((player[0].position.y + 30 === 620) ||
-    (player[1].position.y + 30 === 620)||
-    (player[2].position.y + 30 === 620) ||
-    (player[3].position.y + 30 === 620)){
+    else if ((player[0].position.y + 30 === 620) ||
+        (player[1].position.y + 30 === 620) ||
+        (player[2].position.y + 30 === 620) ||
+        (player[3].position.y + 30 === 620)) {
         player.map((playerCell) => {
             staticBlocks.push(playerCell)
         })
         player = []
         newPiece()
 
-
     }
-    
+
+    staticBlocks.map((block) => {
+        if ((player[0].position.y + 30 === block.position.y && player[0].position.x === block.position.x) ||
+            (player[1].position.y + 30 === block.position.y && player[1].position.x === block.position.x) ||
+            (player[2].position.y + 30 === block.position.y && player[2].position.x === block.position.x) ||
+            (player[3].position.y + 30 === block.position.y && player[3].position.x === block.position.x)) {
+            player.map((playerCell) => {
+                staticBlocks.push(playerCell)
+            })
+            player = []
+            newPiece()
+        }
+    })
+
+
+
 
 }
 animate()
